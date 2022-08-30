@@ -1,6 +1,5 @@
 const { defineConfig } = require('@vue/cli-service')
 let port = 8089
-console.log(process.env)
 /**
  * 第一步 ：打印process.env
  * 第二部：查看NODE_ENV

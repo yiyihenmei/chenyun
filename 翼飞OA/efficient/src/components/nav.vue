@@ -1,14 +1,10 @@
 <template>
-	<Aside></Aside>
+	<div>222</div>
 </template>
 
 
 <script>
-	import Aside from '../components/aside.vue'
 export default{
-	components:{
-		Aside,
-	},
 	data(){
 		return{
 

@@ -2,30 +2,33 @@
   <div class="first-box">
     <div class="second-box">
       <p class="title">OA系统登录</p>
-      <el-form ref="form" :model="form" style="width:420px" class="el-form-input">
-        <el-form-item>
-          <el-input v-model="form.name" class="el-input" placeholder="请输入用户名"></el-input>
+      <el-form ref="ruleForm" :model="loginForm" style="width:420px" class="el-form-input" :rules="rules">
+        <el-form-item prop="account">
+          <el-input v-model="loginForm.account" class="el-input" placeholder="请输入用户名" prefix-icon="el-icon-user-solid"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="form.name" placeholder="请输入密码"></el-input>
+        <el-form-item prop="password">
+          <el-input v-model="loginForm.password" placeholder="请输入密码" prefix-icon="el-icon-lock"></el-input>
         </el-form-item>
         <div class="third-box">
-          <span>忘记密码?</span>
+          <span @click="forgetPassword">忘记密码?</span>
         </div>
         <div class="four-box">
           <el-row :gutter="20">
             <el-col :span="16">
-              <el-input v-model="form.name" placeholder="验证码"></el-input>
+              <el-input v-model="loginForm.img_sms" placeholder="验证码" prop="img_sms"></el-input>
             </el-col>
             <el-col :span="8">
-              <el-input v-model="form.name" placeholder="验证码图片"></el-input>
+              <el-input v-model="loginForm.img_sms" placeholder="验证码图片" prop="img_sms"></el-input>
             </el-col>
           </el-row>
         </div>
         <el-form-item class="el-item-login">
-          <el-button class="login" style="width:330px">登录</el-button>
+          <el-button class="login" style="width:330px" type="primary" @click="login">登录</el-button>
         </el-form-item>
       </el-form>
+    </div>
+    <div class="text">
+      <p class="p-text">2022美团版权所有京ICP证070791号京公网备案11010502022545号</p>
     </div>
   </div>
 </template>
@@ -34,37 +37,91 @@
 import axios from 'axios'
 export default {
   data() {
+		// 用户名校验
+		const checkAccount=(rule, value, callback)=>{
+			const re=/^[a-z0-9_-]{3,16}$/
+			if(re.test(value)){
+				callback()
+			}else{
+				callback(new Error('用户格式不正确'))
+			}
+		}
+		// 密码校验
+		const checkPassword=(rule, value, callback)=>{
+			const re=/^[a-z0-9_-]{6,18}$/
+			if(re.test(value)){
+				callback()
+			}else{
+				callback(new Error('密码格式不正确'))
+			}
+		}
     return {
-      form: {
-        name: ''
-      }
+      loginForm: {
+        account: '',
+				password:'',
+				img_sms:'',
+      },
+			rules: {
+				account: [
+            { required: true, message: '请输入活动名称', trigger: 'blur' },
+            // { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' },
+						{ validator: checkAccount, trigger: 'blur' }
+          ],
+          password: [
+            { required: true, message: '请输入密码', trigger: 'blur' },
+						{ validator: checkPassword, trigger: 'blur' }
+          ],
+          img_sms: [
+            { required: true, message: '请输入图形验证码', trigger: 'blur' }
+          ],
+        },
+			dialogFormVisible:false,
     }
   },
   created() {
     axios.get('/effect/home/loginsearch').then((res) => {
       console.log(res)
     })
-  }
+  },
+	methods:{
+		forgetPassword(){
+			this.$router.push('/changePassword')
+		},
+		login(){
+			this.$refs.ruleForm.validate((valid)=>{
+				if(!valid){
+					return
+				}
+			})
+			this.$router.push('/home')
+		},
+	}
 }
 </script>
 
 
 
 <style lang="scss" scoped>
-	.el-item-login{
-		width: 100%;
-		height: 50px;
-		margin-top: 20px;
-	}
-	.login{
-		margin-left: 40px;
-		height: 50px;
-		border-radius: 13px;
-		background-color:rgb(213, 192, 248);
-		color: #fff;
-		font-size: 20px;
-		border: none;
-	}
+.p-text {
+  color: rgb(154, 154, 154);
+  text-align: center;
+  padding-top: 80px;
+}
+.text {
+  width: 100%;
+}
+.el-item-login {
+  width: 100%;
+  height: 45px;
+  margin-top: 20px;
+}
+.login {
+  margin-left: 40px;
+  height: 45px;
+  border-radius: 13px;
+  margin-top: 10px;
+  font-size: 20px;
+}
 .third-box {
   width: 100%;
   height: 30px;
@@ -72,8 +129,9 @@ export default {
   span {
     float: right;
     color: rgb(237, 198, 85);
-		margin-right: 10px;
-		margin-top: -15px;
+    margin-right: 10px;
+    margin-top: -15px;
+		cursor: pointer;
   }
 }
 .el-form-input {
@@ -81,7 +139,7 @@ export default {
 }
 ::v-deep .el-input__inner {
   border-radius: 15px;
-  height: 50px;
+  height: 45px;
 }
 .second-box {
   width: 580px;
